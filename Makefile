@@ -1,5 +1,5 @@
 CXX      = clang++
-CXXFLAGS = -std=c++2b -Wall
+CXXFLAGS = -std=c++2b -Wall -lfmt
 SRC      = ./src/main.cpp
 OUT      = ./bin/out
 

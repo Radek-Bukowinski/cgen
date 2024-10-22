@@ -2,20 +2,14 @@
 #include <filesystem>
 #include <fstream>
 #include <cstdlib>
+#include <ctime>
+#include <fmt/core.h>
+#include <fmt/color.h>
 
 namespace fs = std::filesystem;
 
-using std::cout, std::endl, std::cerr, std::string, std::ofstream;
-
-/*
-    cgen new [flags] [project name]
-
-        cgen new -c [project name] -> Generates new C project
-        cgen new -cpp [project name] -> Generates new C++ project
-
-    cgen --help
-    cgen --version
-*/
+using std::cout, std::endl, std::cerr, std::string, std::ofstream, fmt::color,
+        fmt::emphasis, fmt::print;
 
 const string VER = "0.1";
 
@@ -25,24 +19,31 @@ int main(int argc, char** argv) {
         string flag = argv[1];
 
         if (flag == "-h" || flag == "--help") {
-            cout << "\n\t| Usage " << endl;
-            cout << "\t| " << endl;
-            cout << "\t| Generate new project: " << endl;
-            cout << "\t|\t cgen new [-c | -cpp] [project name]" << endl;
-            cout << "\t| " << endl;
-            cout << "\t| Display this page: " << endl;
-            cout << "\t|\t cgen [-h | --help]" << endl;
-            cout << "\t| " << endl;
-            cout << "\t| Get version: " << endl;
-            cout << "\t|\t cgen [-v | --version]" << endl;
-            cout << "\t| " << endl;
+            print(fg(fmt::color::sky_blue) | fmt::emphasis::bold,
+                "\n    Usage\n");
+            cout << "     " << endl;
+            cout << "    Generate new project: " << endl;
+            print(emphasis::bold,
+            "        cgen new [-c | -cpp] [project name]\n");
+            cout << "     " << endl;
+            cout << "    Display this page: " << endl;
+            print(emphasis::bold,
+            "        cgen [-h | --help]\n");
+            cout << "     " << endl;
+            cout << "    Get version: " << endl;
+            print(emphasis::bold,
+            "        cgen [-v | --version]\n");
+            cout << "     " << endl;
 
         } else if (flag == "-v" || flag == "--version") {
-            cout << "\n\t| Version " << endl;
-            cout << "\t| " << endl;
-            cout << "\t| " << VER << endl;
+            print(fg(fmt::color::sky_blue) | fmt::emphasis::bold,
+                "\n    Version ");
+            print(fmt::emphasis::bold,
+                VER + "\n");
         } else {
-            cerr << "Unrecognized flag" << endl;
+            print(fg(fmt::color::crimson) | fmt::emphasis::bold,
+                "\n    [Error]\n");
+                print(emphasis::bold, "    Unrecognized flag\n");
             return 1;
         }
 
@@ -87,14 +88,17 @@ int main(int argc, char** argv) {
 
             fs::path file = src / ("main" + proj_type_ext);
             fs::path make = directory / "Makefile";
+            fs::path read = directory / "README.md";
 
-             if(fs::exists(directory)) {
-                cerr << "Directory already exists \n" << endl;
-                return 1;
+            fs::path cwd = fs::current_path() / directory;
+            string c = cwd.c_str();
+
+            if(fs::exists(directory)) {
+                print(fg(fmt::color::crimson) | fmt::emphasis::bold,
+                "\n    [Error]\n");
+                print(emphasis::bold, "    Directory already exists\n");
+                return 0;
             }
-
-            cout << "\nNew projected created under the name of: \n" 
-                 << "   " <<  project_name << "\n\n";
 
             fs::create_directories(project_name);
             fs::create_directories(src);
@@ -129,22 +133,52 @@ int main(int argc, char** argv) {
                     << ".PHONY: all clean\n";
             makeFile.close();
 
-            string command = "git init " + project_name;
+            string author =  std::getenv("USER");;
+            string date; 
+            
+            std::time_t currentTime = std::time(nullptr);
+            std::tm* localTime = std::localtime(&currentTime);
+
+            int day = localTime->tm_mday;
+            int month = (localTime->tm_mon + 1);
+            int year = (localTime->tm_year + 1900);
+
+            int hour = localTime->tm_hour;
+            int min = localTime->tm_min;
+
+            ofstream readmeFile(read);
+            readmeFile << "# " << project_name << "\n";
+            readmeFile << "\n";
+            readmeFile << "Created by " << author << 
+                        " at " << hour << ":" << min <<
+                        " on " << day << "/" << month << "/" << year << "\n";
+            readmeFile.close();
+
+            string command = "git init -q " + project_name;
 
             int result = system(command.c_str());
 
-            if (result == 0) {
-                cout << "Git repository initialized successfully in " << directory << endl;
-            } else {
-                cerr << "Failed to initialize git repository in " << directory << endl;
+            if (result != 0) {
+                print(fg(fmt::color::crimson) | fmt::emphasis::bold,
+                "\n    [Error]\n");
+                print(emphasis::bold, "    Failed to initialize git\n");
+                return 0;
             }
 
+            print(fg(fmt::color::green) | fmt::emphasis::bold,
+                "\nSuccessfully");
+            print(" created new project in the directory of: \n");
+            print(fmt::emphasis::bold, "\t" + c + "\n\n");
         } else {
-
+            print(fg(fmt::color::crimson) | fmt::emphasis::bold,
+                "\n    [Error]\n");
+            print(emphasis::bold, "    Unrecognized command\n");
         }
 
     } else {
-        cerr << "Invalid number of arguments" << endl;
+        print(fg(fmt::color::crimson) | fmt::emphasis::bold,
+                "\n    [Error]\n");
+                print(emphasis::bold, "    Invalid number of arguments\n");
         return 1;
     }
 }
