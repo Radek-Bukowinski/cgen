@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
         string flag = argv[1];
 
         if (flag == "-h" || flag == "--help") {
-            cout << "\n Usage " << endl;
+            cout << "\n\t| Usage " << endl;
             cout << "\t| " << endl;
             cout << "\t| Generate new project: " << endl;
             cout << "\t|\t cgen new [-c | -cpp] [project name]" << endl;
@@ -38,7 +38,9 @@ int main(int argc, char** argv) {
             cout << "\t| " << endl;
 
         } else if (flag == "-v" || flag == "--version") {
-
+            cout << "\n\t| Version " << endl;
+            cout << "\t| " << endl;
+            cout << "\t| " << VER << endl;
         } else {
             cerr << "Unrecognized flag" << endl;
             return 1;
