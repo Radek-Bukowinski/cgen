@@ -23,7 +23,26 @@ int main(int argc, char** argv) {
 
     if (argc == 2) {
         string flag = argv[1];
-        cout << "flag: " << flag << endl;
+
+        if (flag == "-h" || flag == "--help") {
+            cout << "\n Usage " << endl;
+            cout << "\t| " << endl;
+            cout << "\t| Generate new project: " << endl;
+            cout << "\t|\t cgen new [-c | -cpp] [project name]" << endl;
+            cout << "\t| " << endl;
+            cout << "\t| Display this page: " << endl;
+            cout << "\t|\t cgen [-h | --help]" << endl;
+            cout << "\t| " << endl;
+            cout << "\t| Get version: " << endl;
+            cout << "\t|\t cgen [-v | --version]" << endl;
+            cout << "\t| " << endl;
+
+        } else if (flag == "-v" || flag == "--version") {
+
+        } else {
+            cerr << "Unrecognized flag" << endl;
+            return 1;
+        }
 
     } else if (argc == 4) {
         string command = argv[1];
